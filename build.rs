@@ -5,6 +5,7 @@ use std::process::Stdio;
 use std::{env, process::Command};
 
 use parity_scale_codec::Decode;
+use subxt_codegen::syn::parse_quote;
 use subxt_codegen::CodegenBuilder;
 use subxt_metadata::Metadata;
 use subxt_utils_fetchmetadata::{self as fetch_metadata, MetadataVersion};
@@ -27,7 +28,8 @@ async fn main() {
     let mut metadata_bytes: &[u8] = &metadata_bytes;
     let metadata = Metadata::decode(&mut metadata_bytes).unwrap();
 
-    let codegen = CodegenBuilder::new();
+    let mut codegen = CodegenBuilder::new();
+    codegen.set_additional_global_derives(vec![parse_quote!(Clone)]);
 
     let code = codegen.generate(metadata).unwrap();
     let file_output = File::create(metadata_path).unwrap();
