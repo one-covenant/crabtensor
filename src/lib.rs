@@ -1,14 +1,13 @@
-use crate::subtensor::Subtensor;
 use subxt::{Config, SubstrateConfig};
+use crate::subtensor::Subtensor;
 
 pub mod axon;
-pub mod rpc;
+pub mod sign;
+pub mod subtensor;
 pub mod wallet;
 pub mod weights;
 
-pub mod sign;
-pub mod subtensor;
-
+// `api` module from generated metadata.rs (see build.rs for more info)
 include!(concat!(env!("OUT_DIR"), "/metadata.rs"));
 
 pub type SubtensorConfig = SubstrateConfig;
