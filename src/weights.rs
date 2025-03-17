@@ -1,6 +1,8 @@
-use crate::api;
 use std::ops::{Div, Mul};
+
 use subxt::tx::Payload;
+
+use crate::api;
 
 #[derive(Debug)]
 pub struct NormalizedWeight {

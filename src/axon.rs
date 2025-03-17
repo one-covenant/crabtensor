@@ -1,9 +1,10 @@
 use std::fmt::{Display, Formatter};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 
+use subxt::tx::Payload;
+
 use crate::api;
 use crate::api::runtime_types::pallet_subtensor::pallet::{AxonInfo, PrometheusInfo};
-use subxt::tx::Payload;
 
 #[derive(Clone, Copy, Debug, Default)]
 pub enum AxonProtocol {

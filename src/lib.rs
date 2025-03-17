@@ -1,4 +1,5 @@
 use subxt::{Config, SubstrateConfig};
+
 use crate::subtensor::Subtensor;
 
 pub mod axon;

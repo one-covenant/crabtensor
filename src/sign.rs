@@ -1,6 +1,7 @@
+use subxt::ext::sp_core::{sr25519, Pair};
+
 use crate::wallet::Signer;
 use crate::AccountId;
-use subxt::ext::sp_core::{sr25519, Pair};
 
 pub type KeypairSignature = sr25519::Signature;
 
