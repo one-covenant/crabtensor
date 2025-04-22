@@ -32,7 +32,7 @@ async fn main() {
     codegen.set_additional_global_derives(vec![parse_quote!(Clone)]);
     codegen.add_derives_for_type(
         parse_quote!(
-            crate::api::runtime_types::pallet_subtensor::rpc_info::neuron_info::NeuronInfoLite
+            pallet_subtensor::rpc_info::neuron_info::NeuronInfoLite
         ),
         vec![
             parse_quote!(serde::Deserialize),
