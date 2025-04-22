@@ -30,6 +30,16 @@ async fn main() {
 
     let mut codegen = CodegenBuilder::new();
     codegen.set_additional_global_derives(vec![parse_quote!(Clone)]);
+    codegen.add_derives_for_type(
+        parse_quote!(
+            crate::api::runtime_types::pallet_subtensor::rpc_info::neuron_info::NeuronInfoLite
+        ),
+        vec![
+            parse_quote!(serde::Deserialize),
+            parse_quote!(serde::Serialize),
+        ],
+        true,
+    );
 
     let code = codegen.generate(metadata).unwrap();
     let file_output = File::create(metadata_path).unwrap();

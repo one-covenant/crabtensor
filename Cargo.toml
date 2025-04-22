@@ -1,6 +1,6 @@
 [package]
 name = "crabtensor"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 description = "A library for creating Bittensor subnets"
 license = "MIT"
@@ -12,12 +12,14 @@ targets = ["x86_64-unknown-linux-gnu"]
 dirs = "5.0"
 hex = "0.4"
 parity-scale-codec = { version = "3.0.0", features = ["derive"] }
+serde = "1.0.219"
 serde_json = "1.0"
 subxt = { version = "0.38.0", features = ["substrate-compat"] }
 thiserror = "2.0.3"
 
 [build-dependencies]
 parity-scale-codec = "3.0.0"
+serde = "1.0.219"
 subxt-codegen = "0.38.0"
 subxt-metadata = "0.38.0"
 subxt-utils-fetchmetadata = { version = "0.38.0", features = ["url"] }
