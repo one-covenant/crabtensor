@@ -28,7 +28,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-crabtensor = { git = "https://github.com/storb-tech/crabtensor", version = "v0.5.1" }
+crabtensor = { git = "https://github.com/storb-tech/crabtensor", tag = "v0.5.2" }
 ```
 
 ## Usage Examples
