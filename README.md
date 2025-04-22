@@ -4,7 +4,7 @@ Crabtensor is Storb's fork of Rusttensor. Rusttensor can be found [here](https:/
 
 ---
 
-A low level Rust library for creating and interacting with Bittensor subnets, originally developed for [rule30 / Subnet 36](https://github.com/womboai/rule-30-solver). Built using [subxt](https://github.com/paritytech/subxt)
+A low level Rust library for creating and interacting with Bittensor subnets, built using [subxt](https://github.com/paritytech/subxt).
 
 ## Features
 
@@ -14,7 +14,7 @@ A low level Rust library for creating and interacting with Bittensor subnets, or
 - Coldkey and hotkey loading utilities
 - Auto-generated chain metadata types and functions to ensure everything is tested at compile-time
 - Access to chain constants locally at compile-time with no network roundabout
-- Full control and flexibility over transaction creation, signing and submission. Along with full flexibility over block hash handling to allow avoiding extra subtensor calls. 
+- Full control and flexibility over transaction creation, signing and submission. Along with full flexibility over block hash handling to allow avoiding extra subtensor calls.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rusttensor = { git = "https://github.com/womboai/rusttensor", tag = "v0.3.0" }
+crabtensor = { git = "https://github.com/storb-tech/crabtensor", version = "v0.5.1" }
 ```
 
 ## Usage Examples
@@ -36,7 +36,7 @@ rusttensor = { git = "https://github.com/womboai/rusttensor", tag = "v0.3.0" }
 ### Creating a client and connecting to the subtensor
 
 ```rust
-use rusttensor::subtensor::{self, Subtensor, SubtensorUrl};
+use crabtensor::subtensor::{self, Subtensor, SubtensorUrl};
 
 async fn create_client() -> Result<Subtensor, ...> {
     // Creating client to interact with subtensor
@@ -48,10 +48,10 @@ async fn create_client() -> Result<Subtensor, ...> {
 
 #### Block Management
 
-`rusttensor`, based on `subxt` allows all the functionality that `subxt` provides, including the blocks API. You can fetch metadata about any block, and reuse block hashes as needed.
+`crabtensor`, based on `subxt` allows all the functionality that `subxt` provides, including the blocks API. You can fetch metadata about any block, and reuse block hashes as needed.
 
 ```rust
-use rusttensor::subtensor::Subtensor;
+use crabtensor::subtensor::Subtensor;
 
 async fn blocks(client: &Subtensor) -> Result<(), ...> {
     // The latest block can be acquired with `blocks().at_latest()`
@@ -67,39 +67,17 @@ async fn blocks(client: &Subtensor) -> Result<(), ...> {
 ```
 
 #### Runtime APIs
-The most common requests to the subtensor aside from the weight setting and axon serving extrinsics are the runtime APIs used for the metagraph and hyperparameters
 
-By default, most RPC calls at runtime are untyped(returning a Vec<u8>), 
-as such, `rusttensor` provides a safety layer in the form of `call_runtime_api_decoded` which allows the runtime APIs to be completely type safe, much like the rest of the API.
+The most common requests to the subtensor aside from the weight setting and axon serving extrinsics are the runtime APIs used for the metagraph and hyperparameters.
 
-```rust
-use rusttensor::rpc::{call_runtime_api_decoded, NeuronInfoLite, SubnetHyperparams};
-use rusttensor::api;
-
-async fn runtime_apis(client: &Subtensor, block_ref: impl Into<BlockRef<impl BlockHash>>) -> Result<(), ...> {
-    // Construct runtime API query for subnet 1 neuron info
-    let neurons_lites_payload = api::apis().neuron_info_runtime_api().get_neurons_lite(1);
-
-    // query NeuronInfoRuntimeApi at specific block
-    let block_runtime = client.runtime_api().at(block_ref)?;
-    let neurons: Vec<NeuronInfoLite> = call_runtime_api_decoded(&block_runtime, neurons_lites_payload).await?;
-
-    // Or query hyperparameters for subnet 2 at latest block
-    let hyper_parameters_payload = api::apis().subnet_info_runtime_api().get_subnet_info(2);
-    let latest_runtime = client.runtime_api().at_latest().await?;
-    let hyperparameters: Option<SubnetHyperparams> = call_runtime_api_decoded(&latest_runtime, hyper_parameters_payload).await?;
-
-    // Some runtime APIs don't need decoding, such as the subnet registration cost API
-    let payload = api::apis().subnet_registration_runtime_api().get_network_registration_cost();
-    let registration_cost_in_rao = latest_runtime.call(payload).await?;
-}
-```
+The runtime APIs are auto-generated according to the latest chain info via the `build.rs` file, and is accessible via `crabtensor::api`.
 
 #### Storage
-Some functionality doesn't have a specific API, such as neuron commitments which are used for arbitrary metadata like in SN39. In such cases, you can access the subtensor storage. 
+
+Some functionality doesn't have a specific API, such as neuron commitments which are used for arbitrary metadata like in SN39. In such cases, you can access the subtensor storage.
 
 ```rust
-use rusttensor::api;
+use crabtensor::api;
 
 async fn storage(client: &Subtensor) -> Result<(), ...> {
     let account_id: AccountId = ...;
@@ -116,9 +94,11 @@ async fn storage(client: &Subtensor) -> Result<(), ...> {
 ### Authorized extrinsics
 
 #### Wallet Management (WIP)
-You can load existing bittensor wallets created using `btcli` and use them for signing extrinsics such as set_weights or serve_axon. Different kind of wallets can be loaded as follows:
+
+You can load existing Bittensor wallets created using `btcli` and use them for signing extrinsics such as set_weights or serve_axon. Different kind of wallets can be loaded as follows:
+
 ```rust
-use rusttensor::wallet::{Signer, home_hotkey_location, load_key_seed, signer_from_seed};
+use crabtensor::wallet::{Signer, home_hotkey_location, load_key_seed, signer_from_seed};
 
 // Create a signer from the private key of a hotkey
 fn load_hotkey_signer() -> Result<Signer, ...> {
@@ -139,13 +119,14 @@ fn load_hotkey_account_id() -> Result<Signer, ...> {
 With a signer created in a similar fashion to `load_hotkey_signer`, we can submit extrinsics to the chain.
 
 #### Submitting extrinsics
+
 Some extrinsics have specialized APIs that are nicer to work with, such as `serve_axon` and `set_weights`, which reduce the number of parameters needed and uses more idiomatic types.
 Regardless of if the extrinsic has a specialized API or otherwise, submitting them remains the same:
 
 ```rust
-use rusttensor::subtensor::Subtensor;
-use rusttensor::wallet::Signer;
-use rusttensor::weights::{set_weights_payload, normalize_weights, NormalizedWeight};
+use crabtensor::subtensor::Subtensor;
+use crabtensor::wallet::Signer;
+use crabtensor::weights::{set_weights_payload, normalize_weights, NormalizedWeight};
 
 async fn submit_extrinsics(client: &Subtensor, signer: &Signer) -> Result<(), ...> {
     let weights = vec![1.0, 2.0, 3.0];
@@ -189,11 +170,11 @@ The project uses a build script (`build.rs`) to automatically generate Substrate
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a pull request.
 
 ## Note on Security
 
