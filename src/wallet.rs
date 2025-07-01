@@ -5,16 +5,15 @@ use std::path::{Path, PathBuf};
 
 use hex::FromHexError;
 use serde_json::Value;
-use subxt::ext::sp_core::crypto::SecretStringError;
-use subxt::ext::sp_core::{sr25519, Pair};
-use subxt::tx::PairSigner;
+use sp_core::crypto::SecretStringError;
+use sp_core::{sr25519, Pair};
 use thiserror::Error;
 
-use crate::{AccountId, SubtensorConfig};
+use crate::sign::PairSigner;
+use crate::AccountId;
 
-pub type Keypair = sr25519::Pair;
 pub type PublicKey = sr25519::Public;
-pub type Signer = PairSigner<SubtensorConfig, Keypair>;
+pub type Signer = PairSigner;
 
 #[derive(Error, Debug)]
 pub struct InvalidAccountJsonError(PathBuf);
@@ -25,7 +24,7 @@ impl Display for InvalidAccountJsonError {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error)]
 pub enum AccountLoadingError {
     #[error(transparent)]
     InvalidJson(#[from] InvalidAccountJsonError),
