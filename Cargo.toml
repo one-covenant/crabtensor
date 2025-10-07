@@ -15,7 +15,7 @@ serde = "1.0.219"
 serde_json = "1.0"
 sp-core = "36.1.0"
 sp-runtime = "41.1.0"
-subxt = "0.41.0"
+subxt = { version = "0.38", features = ["substrate-compat"] }
 thiserror = "2.0.12"
 
 [build-dependencies]
@@ -24,7 +24,7 @@ parity-scale-codec = { version = "3.7.4", features = [
     "max-encoded-len",
 ], default-features = false }
 serde = "1.0.219"
-subxt-codegen = "0.41.0"
-subxt-metadata = "0.41.0"
-subxt-utils-fetchmetadata = { version = "0.41.0", features = ["url"] }
+subxt-codegen = "0.38"
+subxt-metadata = "0.38"
+#subxt-utils-fetchmetadata = { version = "0.38", features = ["url"] }
 tokio = { version = "1.0", features = ["full"] }
